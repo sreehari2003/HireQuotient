@@ -15,7 +15,7 @@ const Home = () => {
   const [data, setData] = useState<Data[]>([]);
   const [currLimit, setLimit] = useState({
     min: 0,
-    max: 15,
+    max: 10,
     page: 1,
   });
 
@@ -30,29 +30,28 @@ const Home = () => {
   };
 
   const handlePaginationOnDelete = () => {
-    let isEmpty = pagination * 15 > data.length;
+    let isEmpty = pagination * 10 > data.length;
     if (currLimit.page === pagination && isEmpty) {
       handlePagination(pagination - 1);
     }
   };
 
   const handleSingleDelete = (val: string) => {
-    console.log("DELETING");
-    setSelected([val]);
-    bulkDelete();
+    const newData = data.filter((item) => val !== item.id);
+    setData(newData);
   };
 
   const pagination = useMemo(() => {
-    return Math.ceil(data.length / 15);
+    return Math.ceil(data.length / 10);
   }, [data]);
 
   const handlePagination = (val: number) => {
-    let min = 15 * val - 15;
+    let min = 10 * val - 10;
 
     setLimit({
       page: val,
       min,
-      max: min + 15,
+      max: min + 10,
     });
   };
 
@@ -88,6 +87,21 @@ const Home = () => {
     getData();
   }, []);
 
+  const handleUpdate = (id: string, name: string, email: string) => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.id === id
+          ? {
+              name,
+              email,
+              id,
+              role: item.role,
+            }
+          : item
+      )
+    );
+  };
+
   return (
     <main className="p-10 h-screen">
       <div className="flex justify-between">
@@ -117,6 +131,7 @@ const Home = () => {
             .slice(currLimit.min, currLimit.max)
             .map((el) => (
               <List
+                handleUpdate={handleUpdate}
                 handleDelete={handleSingleDelete}
                 name={el.name}
                 role={el.role}
